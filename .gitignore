@@ -1,0 +1,8 @@
+/target
+backend/target
+frontend/node_modules
+frontend/dist
+.vercel
+.env
+.env.*
+.DS_Store
