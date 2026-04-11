@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 
 import { apiUrl } from '../apiBase'
+import { parseApiResponseJson } from '../apiJson'
 
 const trainingData = ref('')
 const predictInput = ref('')
@@ -28,12 +29,13 @@ async function trainLlm() {
   trainError.value = null
   training.value = true
   try {
-    const res = await fetch(apiUrl('/api/train'), {
+    const url = apiUrl('/api/train')
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ training_data: trainingData.value }),
     })
-    const data = (await res.json()) as TrainOk & ErrBody
+    const data = await parseApiResponseJson<TrainOk & ErrBody>(res, url)
     if (!res.ok) {
       trainError.value = data.error ?? `HTTP ${res.status}`
       return
@@ -59,7 +61,8 @@ async function runPredict() {
   predicting.value = true
   try {
     const t = Number(temperature.value)
-    const res = await fetch(apiUrl('/api/predict'), {
+    const url = apiUrl('/api/predict')
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -68,7 +71,10 @@ async function runPredict() {
         temperature: Number.isFinite(t) ? t : 0,
       }),
     })
-    const data = (await res.json()) as { completion?: string } & ErrBody
+    const data = await parseApiResponseJson<{ completion?: string } & ErrBody>(
+      res,
+      url,
+    )
     if (!res.ok) {
       predictError.value = data.error ?? `HTTP ${res.status}`
       return
@@ -101,8 +107,9 @@ async function runPredict() {
         <code>BACKEND_URL</code> in <code>app/.env.development</code> (default
         <code>http://127.0.0.1:8080</code>); overrides in <code>app/.env.local</code>. Match the
         backend’s <code>PORT</code> / <code>API_PORT</code> (or set <code>BACKEND_PORT</code> /
-        <code>VITE_API_PORT</code>). <strong>Vercel:</strong> set <code>VITE_API_BASE</code> at build
-        time to your API origin. Backend: set <code>CORS_ORIGINS</code> (comma separated) to your
+        <code>VITE_API_PORT</code>). <strong>Vercel:</strong> set <code>BACKEND_URL</code> or
+        <code>VITE_API_BASE</code> to your API origin at build time. Backend: set
+        <code>CORS_ORIGINS</code> (comma separated) to your
         Vercel site URL(s).
       </p>
     </header>

@@ -40,6 +40,7 @@ export default defineConfig(({ mode }) => {
   const apiTarget = resolveBackendProxyTarget(env)
 
   return {
+    envPrefix: ['VITE_', 'BACKEND_'],
     plugins: [vue()],
     base: '/',
     server: {

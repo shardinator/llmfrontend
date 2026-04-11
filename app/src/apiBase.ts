@@ -1,17 +1,24 @@
 /**
- * API origin for fetch(). Used on Vercel via `VITE_*` build-time env vars.
+ * API origin for fetch(). Inlined at build time from env vars.
  *
  * Resolution:
- * 1. `VITE_API_BASE` — full origin (e.g. `https://my-api.fly.dev`). Preferred on Vercel.
- * 2. Else `VITE_API_PROTOCOL` + `VITE_API_HOST` + `VITE_API_PORT` (port optional if 80/443 implied).
- * 3. Else `''` — dev uses relative `/api` + Vite proxy; production without base warns once.
+ * 1. `VITE_API_BASE` — full origin (e.g. `https://my-api.fly.dev`).
+ * 2. Else `BACKEND_URL` in **production** only (e.g. set on Vercel; same value as local proxy target).
+ *    Ignored in `vite dev` so `/api` still uses the dev proxy.
+ * 3. Else `VITE_API_PROTOCOL` + `VITE_API_HOST` + `VITE_API_PORT` (port optional if 80/443 implied).
+ * 4. Else `''` — dev: relative `/api` + Vite proxy; prod without base warns once.
  */
 export function getApiBase(): string {
   const trim = (s: string | undefined) => s?.trim() ?? ''
 
-  const explicit = trim(import.meta.env.VITE_API_BASE)
-  if (explicit) {
-    return explicit.replace(/\/$/, '')
+  const viteBase = trim(import.meta.env.VITE_API_BASE)
+  if (viteBase) {
+    return viteBase.replace(/\/$/, '')
+  }
+
+  const backendUrl = trim(import.meta.env.BACKEND_URL)
+  if (backendUrl && import.meta.env.PROD) {
+    return backendUrl.replace(/\/$/, '')
   }
 
   const host = trim(import.meta.env.VITE_API_HOST)
@@ -27,7 +34,7 @@ export function getApiBase(): string {
 
   if (import.meta.env.PROD) {
     console.warn(
-      '[llmfrontend] No VITE_API_BASE (or VITE_API_HOST) set; /api calls go to the same origin and will fail unless you proxy there.',
+      '[llmfrontend] No API origin set (VITE_API_BASE, BACKEND_URL, or VITE_API_HOST); /api calls hit this host and will fail.',
     )
   }
 
