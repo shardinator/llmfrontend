@@ -6,14 +6,38 @@ import vue from '@vitejs/plugin-vue'
 
 const appDir = path.dirname(fileURLToPath(import.meta.url))
 
+function trim(s: string | undefined): string {
+  return s?.trim() ?? ''
+}
+
+/** Origin for `server.proxy['/api'].target` — reads env only in Node, not bundled for the client. */
+function resolveBackendProxyTarget(env: Record<string, string>): string {
+  const fromUrl = trim(env.BACKEND_URL) || trim(env.VITE_API_BASE)
+  if (fromUrl) {
+    try {
+      const u = new URL(fromUrl.replace(/\/$/, ''))
+      return u.origin
+    } catch {
+      /* fall through */
+    }
+  }
+
+  const host =
+    trim(env.VITE_API_HOST) || trim(env.BACKEND_HOST) || '127.0.0.1'
+  const port =
+    trim(env.VITE_API_PORT) ||
+    trim(env.VITE_BACKEND_PORT) ||
+    trim(env.BACKEND_PORT) ||
+    trim(env.PORT) ||
+    '8080'
+
+  return `http://${host}:${port}`
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, appDir, '')
-  const apiPort =
-    env.VITE_API_PORT?.trim() ||
-    env.VITE_BACKEND_PORT?.trim() ||
-    '8080'
-  const apiHost = env.VITE_API_HOST?.trim() || '127.0.0.1'
+  const apiTarget = resolveBackendProxyTarget(env)
 
   return {
     plugins: [vue()],
@@ -21,7 +45,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         '/api': {
-          target: `http://${apiHost}:${apiPort}`,
+          target: apiTarget,
           changeOrigin: true,
         },
       },

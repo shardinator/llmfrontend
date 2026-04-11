@@ -2,5 +2,8 @@ app/node_modules
 app/dist
 .vercel
 .env
-.env.*
+.env.local
+.env.*.local
+!.env.example
+!.env.development
 .DS_Store
