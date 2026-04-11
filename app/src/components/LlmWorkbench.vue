@@ -95,13 +95,13 @@ async function runPredict() {
         greedy decoding.
       </p>
       <p class="hint">
-        <strong>Local:</strong> <code>cd llmbackend && cargo run</code> — backend uses
+        <strong>Local:</strong> <code>cd llmbackend && cargo run</code>, backend uses
         <code>PORT</code> / <code>API_PORT</code> (default 8080) and <code>BIND_HOST</code> (default
         <code>0.0.0.0</code>). UI: <code>npm run dev</code> proxies <code>/api</code> to
         <code>VITE_API_HOST</code>:<code>VITE_API_PORT</code> (defaults <code>127.0.0.1:8080</code>;
         put overrides in <code>app/.env.local</code>). Port in use: match <code>PORT</code> and
         <code>VITE_API_PORT</code>. <strong>Vercel:</strong> set <code>VITE_API_BASE</code> at build
-        time to your API origin. Backend: set <code>CORS_ORIGINS</code> (comma-separated) to your
+        time to your API origin. Backend: set <code>CORS_ORIGINS</code> (comma separated) to your
         Vercel site URL(s).
       </p>
     </header>
