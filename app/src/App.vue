@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import LlmWorkbench from './components/LlmWorkbench.vue'
+import Home from './components/Home.vue'
 </script>
 
 <template>
-  <LlmWorkbench />
+  <Home />
 </template>

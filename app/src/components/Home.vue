@@ -92,7 +92,18 @@ async function runPredict() {
 <template>
   <div class="workbench">
     <header class="header">
-      <h1>LittleLM Training &amp; Prediction</h1>      
+      <div class="brand">
+        <img
+          class="logo"
+          src="/images/LittleLM_logo.png"
+          alt="LittleLM"
+          width="883"
+          height="553"
+          decoding="async"
+        />
+      </div>
+      <p class="tagline">A compact state of the art artificial intelligence. 
+        Get the code from <a href="https://github.com/shardinator" target="_blank" rel="noopener">github.com/shardinator</a>.</p>
     </header>
 
     <section class="card">
@@ -119,7 +130,7 @@ async function runPredict() {
         v-model="predictInput"
         class="area"
         rows="4"
-        placeholder="Prefix text; the model appends a sampled or greedy continuation…"
+        placeholder="Prefix text for the model to predict"
         spellcheck="false"
       />
       <div class="temp-row">
@@ -153,10 +164,38 @@ async function runPredict() {
   text-align: left;
 }
 
-.header h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.85rem;
+.brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.tagline {
+  margin: 0 0 1.75rem;
+  max-width: 28rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
   color: var(--text-h);
+}
+
+.logo {
+  height: clamp(4.25rem, 14vw, 6.75rem);
+  width: auto;
+  max-width: min(100%, 440px);
+  object-fit: contain;
+  display: block;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.25rem, 3.5vw, 1.85rem);
+  font-weight: 700;
+  color: var(--text-h);
+  line-height: 1.2;
 }
 
 .sub {
