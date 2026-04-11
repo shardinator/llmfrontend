@@ -18,9 +18,9 @@ const temperature = ref(0.85)
 type TrainOk = {
   message: string
   characters?: number
-  distinct_bigrams?: number
-  distinct_trigrams?: number
-  distinct_fourgrams?: number
+  vocab_size?: number
+  epochs?: number
+  final_loss?: number
 }
 type ErrBody = { error: string }
 
@@ -45,10 +45,10 @@ async function trainLlm() {
     }
     const bits =
       data.characters != null &&
-      data.distinct_bigrams != null &&
-      data.distinct_trigrams != null &&
-      data.distinct_fourgrams != null
-        ? ` (${data.characters} chars; ${data.distinct_fourgrams} 4-gram, ${data.distinct_trigrams} 3-gram, ${data.distinct_bigrams} 2-gram types)`
+      data.vocab_size != null &&
+      data.epochs != null &&
+      data.final_loss != null
+        ? ` (${data.characters} chars, vocab ${data.vocab_size}, ${data.epochs} epochs, loss ${data.final_loss.toFixed(4)})`
         : ''
     trainStatus.value = (data.message ?? 'Trained.') + bits
   } catch (e) {
@@ -91,19 +91,21 @@ async function runPredict() {
 <template>
   <div class="workbench">
     <header class="header">
-      <h1>LLM training &amp; prediction</h1>
+      <h1>LLM Training &amp; Prediction</h1>
       <p class="sub">
-        This is a <strong>small statistical language model</strong> (4-gram character Markov chain
-        with backoff), trained in Rust—not a deep neural net. It learns which characters tend to
-        follow short contexts in <em>your</em> text. Use a non-zero <strong>temperature</strong> when
-        predicting to reduce boring loops like <code>an an an…</code> that greedy news-text models
-        often produce.
+        Training fits a <strong>small character level neural net</strong> (embeddings + MLP) with
+        <a href="https://github.com/huggingface/candle" target="_blank" rel="noopener">Candle</a> on
+        CPU: each step predicts the next character from a fixed window. It is not GPT scale, but
+        it is a learned model. Use <strong>temperature</strong> &gt; 0 for sampling instead of pure
+        greedy decoding.
       </p>
       <p class="hint">
-        Local dev: run the backend on port 8080 (<code>cd llmbackend && cargo run</code> or
-        your Fly URL) and use <code>npm run dev</code>; <code>/api</code> is proxied to
-        <code>127.0.0.1:8080</code>. For a hosted UI, set
-        <code>VITE_API_BASE</code> to your API origin.
+        Local dev: <code>cd llmbackend && cargo run</code> (env <code>PORT</code>, default 8080). Run
+        the UI with <code>npm run dev</code>; <code>/api</code> is proxied to
+        <code>127.0.0.1</code> using env <code>VITE_BACKEND_PORT</code> (default 8080). If you see
+        “address already in use”, stop the other process or use
+        <code>PORT=8081 cargo run</code> with <code>VITE_BACKEND_PORT=8081 npm run dev</code>.
+        Hosted UI: set <code>VITE_API_BASE</code> to your API origin.
       </p>
     </header>
 
@@ -145,7 +147,7 @@ async function runPredict() {
           max="2"
           step="0.05"
         />
-        <span class="temp-hint">0 = greedy · default 0.85 = random-ish, less repetitive</span>
+        <span class="temp-hint">0 = greedy · default 0.85 = randomish, less repetitive</span>
       </div>
       <button type="button" class="btn" :disabled="predicting" @click="runPredict">Predict</button>
       <div v-if="predictOutput !== null" class="out">
@@ -198,6 +200,35 @@ async function runPredict() {
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: var(--text-h);
+}
+
+.temp-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.temp-label {
+  font-weight: 600;
+  color: var(--text-h);
+}
+
+.temp-input {
+  width: 5rem;
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.temp-hint {
+  font-size: 0.85rem;
+  color: var(--text);
+  flex: 1 1 12rem;
 }
 
 .area {
