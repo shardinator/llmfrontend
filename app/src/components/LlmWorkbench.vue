@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-/** In production, set e.g. VITE_API_BASE=https://your-app.fly.dev (no trailing slash). */
-const apiBase = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, '') ?? ''
+import { apiUrl } from '../apiBase'
 
 const trainingData = ref('')
 const predictInput = ref('')
@@ -23,10 +22,6 @@ type TrainOk = {
   final_loss?: number
 }
 type ErrBody = { error: string }
-
-function apiUrl(path: string) {
-  return `${apiBase}${path}`
-}
 
 async function trainLlm() {
   trainStatus.value = null
@@ -100,12 +95,14 @@ async function runPredict() {
         greedy decoding.
       </p>
       <p class="hint">
-        Local dev: <code>cd llmbackend && cargo run</code> (env <code>PORT</code>, default 8080). Run
-        the UI with <code>npm run dev</code>; <code>/api</code> is proxied to
-        <code>127.0.0.1</code> using env <code>VITE_BACKEND_PORT</code> (default 8080). If you see
-        “address already in use”, stop the other process or use
-        <code>PORT=8081 cargo run</code> with <code>VITE_BACKEND_PORT=8081 npm run dev</code>.
-        Hosted UI: set <code>VITE_API_BASE</code> to your API origin.
+        <strong>Local:</strong> <code>cd llmbackend && cargo run</code> — backend uses
+        <code>PORT</code> / <code>API_PORT</code> (default 8080) and <code>BIND_HOST</code> (default
+        <code>0.0.0.0</code>). UI: <code>npm run dev</code> proxies <code>/api</code> to
+        <code>VITE_API_HOST</code>:<code>VITE_API_PORT</code> (defaults <code>127.0.0.1:8080</code>;
+        put overrides in <code>app/.env.local</code>). Port in use: match <code>PORT</code> and
+        <code>VITE_API_PORT</code>. <strong>Vercel:</strong> set <code>VITE_API_BASE</code> at build
+        time to your API origin. Backend: set <code>CORS_ORIGINS</code> (comma-separated) to your
+        Vercel site URL(s).
       </p>
     </header>
 

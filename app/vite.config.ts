@@ -1,18 +1,30 @@
-import { defineConfig } from 'vite'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-const backendPort = process.env.VITE_BACKEND_PORT ?? '8080'
+const appDir = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [vue()],
-  base: '/',
-  server: {
-    proxy: {
-      '/api': {
-        target: `http://127.0.0.1:${backendPort}`,
-        changeOrigin: true,
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, appDir, '')
+  const apiPort =
+    env.VITE_API_PORT?.trim() ||
+    env.VITE_BACKEND_PORT?.trim() ||
+    '8080'
+  const apiHost = env.VITE_API_HOST?.trim() || '127.0.0.1'
+
+  return {
+    plugins: [vue()],
+    base: '/',
+    server: {
+      proxy: {
+        '/api': {
+          target: `http://${apiHost}:${apiPort}`,
+          changeOrigin: true,
+        },
       },
     },
-  },
+  }
 })
