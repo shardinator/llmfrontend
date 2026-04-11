@@ -103,7 +103,14 @@ async function runPredict() {
         />
       </div>
       <p class="tagline">A compact state of the art artificial intelligence. 
-        Get the code from <a href="https://github.com/shardinator" target="_blank" rel="noopener">github.com/shardinator</a>.</p>
+        Get the code from <a href="https://github.com/shardinator" target="_blank" rel="noopener">
+          github.com/shardinator</a>.
+      </p>
+      <p class="explainer">Please note that this is a work in progress and the software is currently under development, 
+          however you can get the code and build it yourself perhaps using your favourite AI coding assistant. 
+          There are two parts to this application. The frontend is written in Javascript using VueJS
+          and the back end is written using the Rust programming language. </p>      
+        
     </header>
 
     <section class="card">
@@ -116,6 +123,7 @@ async function runPredict() {
         placeholder="Paste text the model should learn from…"
         spellcheck="false"
       />
+
       <button type="button" class="btn primary" :disabled="training" @click="trainLlm">
         Train LLM
       </button>
@@ -180,6 +188,14 @@ async function runPredict() {
   line-height: 1.35;
   letter-spacing: -0.02em;
   color: var(--text-h);
+}
+
+.explainer {
+  margin: 0 0 2.25rem;
+  max-width: 40rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text);
 }
 
 .logo {
